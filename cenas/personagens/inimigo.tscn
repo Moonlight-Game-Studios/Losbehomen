@@ -1,6 +1,42 @@
-[gd_scene load_steps=2 format=3 uid="uid://bplytbpmh1w2p"]
+[gd_scene load_steps=16 format=3 uid="uid://bplytbpmh1w2p"]
 
 [ext_resource type="Script" uid="uid://db5nqndpriqwp" path="res://scripts/inimigo.gd" id="1_kbfgg"]
+[ext_resource type="Script" uid="uid://1vkqp51vam5b" path="res://tasks/task_verificar_distancia.gd" id="2_jkedn"]
+[ext_resource type="Texture2D" uid="uid://dhwo1kymg10nj" path="res://icon.svg" id="2_rdxay"]
+[ext_resource type="Script" uid="uid://fm1bnyo118cu" path="res://tasks/task_fugir.gd" id="4_it6ry"]
+[ext_resource type="Script" uid="uid://bcvvewtu20e8i" path="res://tasks/task_posicao_aleatoria.gd" id="5_2n7pr"]
+
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_kbfgg"]
+
+[sub_resource type="BTCondition" id="BTCondition_rnnpg"]
+script = ExtResource("2_jkedn")
+distancia_segura = 600
+
+[sub_resource type="BTAction" id="BTAction_2hbo5"]
+script = ExtResource("4_it6ry")
+
+[sub_resource type="BTDynamicSequence" id="BTDynamicSequence_rdxay"]
+custom_name = "Fugir"
+children = [SubResource("BTCondition_rnnpg"), SubResource("BTAction_2hbo5")]
+
+[sub_resource type="BTAction" id="BTAction_moc81"]
+script = ExtResource("5_2n7pr")
+
+[sub_resource type="BTWait" id="BTWait_owcmq"]
+duration = 3.0
+
+[sub_resource type="BTSequence" id="BTSequence_rnnpg"]
+custom_name = "Vagar"
+children = [SubResource("BTAction_moc81"), SubResource("BTWait_owcmq")]
+
+[sub_resource type="BTSelector" id="BTSelector_kn2th"]
+children = [SubResource("BTDynamicSequence_rdxay"), SubResource("BTSequence_rnnpg")]
+
+[sub_resource type="BehaviorTree" id="BehaviorTree_rdxay"]
+blackboard_plan = SubResource("BlackboardPlan_kbfgg")
+root_task = SubResource("BTSelector_kn2th")
+
+[sub_resource type="BlackboardPlan" id="BlackboardPlan_it6ry"]
 
 [node name="inimigo" type="CharacterBody2D"]
 script = ExtResource("1_kbfgg")
@@ -8,5 +44,8 @@ script = ExtResource("1_kbfgg")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_rdxay")
 
-[node name="NavigationAgent2D" type="NavigationAgent2D" parent="."]
+[node name="BTPlayer" type="BTPlayer" parent="."]
+behavior_tree = SubResource("BehaviorTree_rdxay")
+blackboard_plan = SubResource("BlackboardPlan_it6ry")

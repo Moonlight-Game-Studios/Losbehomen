@@ -1,15 +1,28 @@
 extends CharacterBody2D
 
-@onready var navigation_agent: NavigationAgent2D = $NavigationAgent2D
-@export var velocidade = 150.0
+@export var distancia_de_parada = 10.0
+@export var velocidade = 150.0 
 
-func _physics_process(delta: float) -> void:
-	if navigation_agent.is_navigation_finished():
-		return
+var player = Node2D
+var posicao_alvo: Vector2
+
+func _ready() -> void:
+	posicao_alvo = global_position
 	
-	var current_agent_position:Vector2 = global_position
-	var next_path_position:Vector2 = navigation_agent.get_next_path_position()
+	player = get_tree().get_first_node_in_group("Player")
+	if player == null:
+		print("sem player dfinido")
+
+func _physics_process(_delta: float) -> void:
+	if global_position.distance_to(posicao_alvo) > distancia_de_parada:
+		var direcao = (posicao_alvo - global_position).normalized()
+		
+		velocity = direcao * velocidade
+		move_and_slide()
 	
-	var new_velocity:Vector2 = next_path_position - current_agent_position
-	new_velocity = new_velocity.normalized() * velocidade
-	
+	else:
+		velocity = Vector2.ZERO
+
+func _movimento_alvo(alvo: Vector2):
+	print("indo para o alvo:", alvo )
+	posicao_alvo = alvo
